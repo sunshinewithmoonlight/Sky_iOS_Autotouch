@@ -1,5 +1,5 @@
 import os, sys, json, time, gc
-gc.disable()
+gc.enable()
 
 def main(a):
     #os.chdir(os.path.dirname(os.path.abspath(a)))
@@ -11,6 +11,7 @@ def main(a):
             v= json.loads(f.read()[1:])
     except Exception as e:
         print(a, "：可能是ABC谱或其他不能识别的文件")
+        return
     if v[0]["name"]=="Untitle":
         v2_name= os.path.basename(a)[:-4]
     else:
@@ -21,6 +22,7 @@ def main(a):
     
     if v6_song[0]["time"]==0:
         main.abc="."
+
     for i in v6_song:
         if i["key"][0]=="2":
             v7= i["time"]//v5_gap
@@ -28,7 +30,15 @@ def main(a):
             v8= ".".join((v7-main.abc_i)*[" "])
             main.abc_i= v7
             main.abc= "%s%s%s%s" %( main.abc, v8, chr(ord('A')+v9//5), v9%5+1 )
-    
+
+    if len(main.abc)==0:
+        for i in v6_song:
+            v7= i["time"]//v5_gap
+            v9= int(i["key"].split('y')[1])
+            v8= ".".join((v7-main.abc_i)*[" "])
+            main.abc_i= v7
+            main.abc= "%s%s%s%s" %( main.abc, v8, chr(ord('A')+v9//5), v9%5+1 )
+
     with open(os.path.join(main.dir, v2_name+".txt"), encoding="utf-16-le", mode="w") as f:
         f.write("\ufeff<DontCopyThisLine> %s %s %s %s %s\n%s\n" %(v5_bpm, v[0]["pitchLevel"], v[0]["bitsPerPage"], v[0]["author"], v[0]["transcribedBy"], main.abc))
 
