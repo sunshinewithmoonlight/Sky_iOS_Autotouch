@@ -20,7 +20,7 @@ def main(a):
     v5_gap= 60000//v5_bpm
     v6_song= v[0]["songNotes"]
     
-    if v6_song[0]["time"]==0:
+    if v6_song[0]["time"]!=0:
         main.abc="."
 
     for i in v6_song:
