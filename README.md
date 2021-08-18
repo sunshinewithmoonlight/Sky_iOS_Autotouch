@@ -6,10 +6,7 @@
 
 在触动精灵上运行的lua脚本由于不支持多点同时触控，已经停止支持。
 
-目前适配了 iPhone 6s 的屏幕，
-有需求可以提 Issues 或 Pull request。
-
-目前版本的一系列弹奏bug（例如漏音）仍然存在，已经通过zxtouch的多点同时触控支持实现快速弹奏。
+目前适配了 iPhone 6s 的屏幕，有需求可以提 Issues 或 Pull request。
 
 ## 安装教程
 
