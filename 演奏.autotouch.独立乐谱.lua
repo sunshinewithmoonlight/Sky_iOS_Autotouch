@@ -1,45 +1,15 @@
-musicScorePath =  debug.getinfo(1).source:match('@?(.*/)') .. 'SkyMusicScore/'
-io.popen('mkdir ' .. musicScorePath)
-local musicScoreP1 = io.popen('ls ' .. musicScorePath .. '| sed "s/\\.txt$//"', 'r')
-local musicScoreP2 = musicScoreP1:read('*a') -- 读取文件夹中的全部曲谱
-musicScoreP1:close()
 
-if musicScoreP2 == '' then
-	alert("empty")
-	os.exit()
-end
-
-local musicScoreList = {}
-for i in string.gmatch(musicScoreP2, "[^\n]+") do
-    table.insert(musicScoreList, i)
-end
-
-function compareByLengthAndType(a, b)
-    -- 获取首字母是否为中文
-    local aIsChineseFirst = string.byte(a, 1) >= 128
-    local bIsChineseFirst = string.byte(b, 1) >= 128
-
-    -- 如果一个是中文开头,一个是英文开头,则将英文开头的排在后面
-    if aIsChineseFirst ~= bIsChineseFirst then
-        return aIsChineseFirst
-    end
-
-    -- 如果都是中文开头,则按照字符串长度排序
-    if aIsChineseFirst then
-        return string.len(a) < string.len(b)
-    end
-
-    -- 如果都是英文开头,则首先按照首字母排序,然后按照字符串长度排序
-    local aFirst = string.lower(string.sub(a, 1, 1))
-    local bFirst = string.lower(string.sub(b, 1, 1))
-    if aFirst ~= bFirst then
-        return aFirst < bFirst
-    else
-        return string.len(a) < string.len(b)
-    end
-end
-
-table.sort(musicScoreList, compareByLengthAndType)
+-- x
+-- 280
+-- 430
+-- 570
+-- 710
+-- 850
+-- 
+-- y
+-- 130
+-- 270
+-- 410
 
 function text2table(a)
     local s3= {};
@@ -114,7 +84,7 @@ function touchPoint(a)
     return s4, s3;
     end
 
-function play(a, b)
+function main(a)
 
     if a == nil then
         return;
@@ -122,7 +92,7 @@ function play(a, b)
 
     local v = text2table(a)
     local playableTable = table2playable(v)
-    local gap = 81000000 // b
+    local gap = 30000000 // 300
     log(table.tostring(playableTable))
     local currentPointsStack = {{}, {}}
     local i_currentPointsStack = 1
@@ -155,27 +125,4 @@ function play(a, b)
 end
 
 
-local scorePicker = {type=CONTROLLER_TYPE.PICKER, title="选择乐谱文件:", key="Picker", value="---选择乐谱文件---", options=musicScoreList}
-local btn1 = {type=CONTROLLER_TYPE.BUTTON, title="开始", color=0x0960FF, width=1.0, flag=1, collectInputs=true}
-local btn2 = {type=CONTROLLER_TYPE.BUTTON, title="不弹了", color=0x0960FF, width=1.0, flag=2, collectInputs=true}
-local controls = {scorePicker, btn1, btn2}
-local result = dialog(controls);
-
-if (result == 1) then
-
-	local scoreP1 = io.open(musicScorePath .. scorePicker.value .. '.txt', 'rb') -- 以二进制模式打开文件
-	local scoreP2 = scoreP1:read("*a") -- 读取整个文件内容为字节字符串
-	scoreP1:close()
-	local scoreContent = "" -- 存储最终的UTF-8字符串
-	for i = 1, #scoreP2, 2 do
-	  local scoreP3 = string.unpack("<I2", scoreP2, i) -- 以小端序读取一个 UTF-16 码位
-	  scoreContent = scoreContent .. utf8.char(scoreP3) -- 将码位转换为 UTF-8 字符并拼接到结果字符串中
-	end
-	
-	local firstLine = scoreContent:match("(.*)\n") -- 获取第一行
-	local speed = firstLine:gmatch("%S+%s+(%S+)")() -- 获取速度
-	local scoreABC = scoreContent:match("\n(.*)")  -- 获取ABC谱
-
-	play(scoreABC, tonumber(speed))
-	
-end
+main("A5 B3 B4 A4C2 . . A5 . . B3 . . A2B2 . . . . . . . . . . . . . . . . . . . . . . . . . . B3 B2 A1B1 . . A4B2 . . B1B3 . . A5B2 . . . . . . . . . . . . . . . . . . . . . . . . . C3 . C4 . B3B5C5 . . C4 . B5 . . . C2 . . . A4B1C2 . . . . . B3 . . . A5B2B4 . . . B3 . B4 . . . C2 . . . A5B3B5 . . . . . . C3 . . C4 . . . B3B5C5 . . C4 . B5 . . . C2 . . . A4B1C2 . . . . . B3 . . . . . A5B2B4C2 . . . . . . . . . . . . . . . . . . . B3 . . B4 . . A5B3B5 . . . . . B3 . . B2 . . A1B1 . . A4B2 B3 . B1 . . B5 . . A5B2B4 . . . . . B2 . . B1 . . A3A5 . . B1 . B2 A5 . . B4 . . A3B1B3 . . . . . . . . . B3 B2 . A3A5B3 . . . . . . B1 B1 . B2 . A2A4B3 . . B2 . . B1B3 . . A5B2B4C2 . . . . . . . B3 . . B4 . . A1B5 . . A5 . . B3 . . B2 . . A1B1 . . A4B2 B3 . B1 . . B5 . . A2B4 . . A5 . . B2 . . B1 . . A3B2 . . C1 . . B2B5 . . B2 B3 . A3B1 . . A3 . . A3C3 C4 . B1C5 . . A3A5C4 . . . . . . . . B1 B3 . A1C1 . . B5 B3 . C1 . . B5 B3 . B3 . . . . . A1A4 . . B1 B3 . A2A4B4 . . B4 . B4 . . . B5 . . . A4B1C1 . . . . B5 . . . . B3 . . A2A5B4 . . . . . . . . . . . . . . . C2 . . C3 . . C4 . . A3C5 . . B1C4 . B5 B3 . C2 . . C2 . A4 . . A1C3 . . A4B4 . . B3 . . A2B4 . . A5B3 . B4 B2 . C2 . . B5 A1 . . A5C2 . . B3C3 . . A5C4 . . A3C5 . . B1C4 . B5 B3 . C2 . . C2 . A4 . . A1C3 . . A4B4 . . B3 . . A2B4 . . B3 B2 . A5 . B3 . . B3 A1 . . A5C2 . . B3C3 . . A5C4 . . A3C5 . . B1C4 . B5 B3 . C2 . . C2 . A4 . . A1C3 . . A4B4 . . B3 . . A2B4 . . A5B3 . B4 B2 . C2 . . B5 A1 . . A5C2 . . B3C3 . . A5C4 . . A3C5 . . B1C4 . B5 B3 . C2 . . C2 . A4 . . A1 . . A4B5 . C2 . . C2 . A2 . . A5 . . B2B4C2 . . . . . C1 . B5 . . B4 . . . . B3 . . B3 ")
